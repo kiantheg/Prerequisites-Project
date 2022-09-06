@@ -7,11 +7,11 @@ import java.math.*;
 public class Blob {
 	String text = "";
 	String sha1 = "";
-	File textFile;
-	public Blob(Path filePath) throws IOException, NoSuchAlgorithmException {
-		text = Files.readString(filePath);
+	public Blob(String filePath) throws IOException, NoSuchAlgorithmException {
+		Path fPath = Paths.get(filePath);
+		text = Files.readString(fPath);
 		MessageDigest digest = MessageDigest.getInstance("SHA-1");
-		digest.reset();
+		digest.reset(); 
 		digest.update(text.getBytes("utf8"));
 		sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
 	}
@@ -19,12 +19,16 @@ public class Blob {
 		return sha1;
 	}
 	public void createFile() throws FileNotFoundException {
-		textFile = new File(sha1);
-		new File("/path/object").mkdirs();
-		File directoryFile = new File("C:\\Users\\Wyatt\\objects");
-		PrintWriter pw = new PrintWriter(textFile);
+		String directory = "/Users/wyatt/Applications/Programming Folder/Prerequisites Project/objects/";
+		PrintWriter printWriter = new PrintWriter(directory + sha1);
 		for (int i = 0; i < text.length(); i++) {
-			pw.print(text.substring(i,i+1));
+			printWriter.print(text.substring(i,i+1));
 		}
+		printWriter.close();
+	}
+	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
+		Blob b = new Blob(".\\test\\something.txt");
+		b.getSha1();
+		b.createFile();
 	}
 }
