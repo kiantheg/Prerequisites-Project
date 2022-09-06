@@ -19,7 +19,7 @@ public class Blob {
 		return sha1;
 	}
 	public void createFile() throws FileNotFoundException {
-		String directory = "/Users/wyatt/Applications/Programming Folder/Prerequisites Project/objects/";
+		String directory = "/Users/wyatt/Applications/Programming Folder/Prerequisites Project/test/objects/";
 		PrintWriter printWriter = new PrintWriter(directory + sha1);
 		for (int i = 0; i < text.length(); i++) {
 			printWriter.print(text.substring(i,i+1));
@@ -27,7 +27,7 @@ public class Blob {
 		printWriter.close();
 	}
 	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
-		Blob b = new Blob(".\\test\\something.txt");
+		Blob b = new Blob("./test/something.txt");
 		b.getSha1();
 		b.createFile();
 	}
