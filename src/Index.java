@@ -28,8 +28,8 @@ public class Index {
 		FileWriter fileWriter = new FileWriter("index.txt");
 		for (String name : pairs.keySet()) {
 		    fileWriter.write(name + " : " + pairs.get(name));
-		    fileWriter.close();
 		}
+	    fileWriter.close();
 	}
 	
 	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
