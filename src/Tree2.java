@@ -23,7 +23,7 @@ public class Tree2 {
 		bw.close();
 	}
 	
-	private String generateString(ArrayList<String> arr) {
+	public String generateString(ArrayList<String> arr) {
 		String string = "";
 		for (String str: arr) {
 			string+=str;
@@ -32,7 +32,7 @@ public class Tree2 {
 	}
 	
 	//SHA1 method
-		private String encryptThisString(String input)
+		public String encryptThisString(String input)
 	    {
 	        try {
 	            // getInstance() method is called with algorithm SHA-1
