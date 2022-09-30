@@ -8,11 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Tree {
-
+	public String sha1;
 	public Tree(ArrayList<String> arr) throws IOException {
-		String sha1 = encryptThisString(generateString(arr));
+		sha1 = encryptThisString(generateString(arr));
 		
-		File file = new File(sha1);
+		File file = new File("tester/"+ sha1);
 		FileWriter fw = new FileWriter(file);
 		BufferedWriter bw = new BufferedWriter(fw);
 		for (String str: arr) {
