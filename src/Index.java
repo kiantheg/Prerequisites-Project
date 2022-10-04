@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 public class Index {
@@ -16,9 +17,11 @@ public class Index {
 	public void addBlobs(String fileName) throws NoSuchAlgorithmException, IOException {
 		Blob newBlob = new Blob("./tester/" + fileName);
 		pairs.put(fileName, newBlob.getSha1());
-		FileWriter fileWriter = new FileWriter("tester/index");
-	    fileWriter.write(fileName + " : " + newBlob.getSha1());
-	    fileWriter.close();
+		PrintWriter fileWriter = new PrintWriter("tester/index");
+		for (String key: pairs.keySet()) {
+			fileWriter.println (key + " : " + pairs.get(key));
+		}
+		fileWriter.close();
 	}
 	
 	public void removeBlobs(String fileName) throws IOException {
@@ -27,9 +30,9 @@ public class Index {
 		myObj.delete();
 		indexFile.delete();
 		indexFile = new File("/tester/index");
-		FileWriter fileWriter = new FileWriter("tester/index");
+		PrintWriter fileWriter = new PrintWriter("tester/index");
 		for (String name : pairs.keySet()) {
-		    fileWriter.write(name + " : " + pairs.get(name));
+		    fileWriter.println(name + " : " + pairs.get(name));
 		}
 	    fileWriter.close();
 	}

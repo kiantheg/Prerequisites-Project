@@ -2,6 +2,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,16 +12,11 @@ public class Tree {
 	public String sha1;
 	public Tree(ArrayList<String> arr) throws IOException {
 		sha1 = encryptThisString(generateString(arr));
-		
-		File file = new File("tester/"+ sha1);
-		FileWriter fw = new FileWriter(file);
-		BufferedWriter bw = new BufferedWriter(fw);
+		PrintWriter pw = new PrintWriter("tester/objects/"+ sha1);
 		for (String str: arr) {
-			bw.write(str);
-			bw.newLine();
+			pw.println(str);
 		}
-		fw.close();
-		bw.close();
+		pw.close();
 	}
 	
 	private String generateString(ArrayList<String> arr) {

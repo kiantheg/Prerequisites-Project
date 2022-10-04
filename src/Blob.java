@@ -14,13 +14,13 @@ public class Blob {
 		digest.reset(); 
 		digest.update(text.getBytes("utf8"));
 		sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+		createFile();
 	}
 	public String getSha1() {
 		return sha1;
 	}
 	public void createFile() throws FileNotFoundException {
-		String directory = "/Users/wyatt/Applications/Programming Folder/Prerequisites Project/tester/objects/";
-		PrintWriter printWriter = new PrintWriter(directory + sha1);
+		PrintWriter printWriter = new PrintWriter("tester/objects/" + sha1);
 		for (int i = 0; i < text.length(); i++) {
 			printWriter.print(text.substring(i,i+1));
 		}
@@ -29,6 +29,5 @@ public class Blob {
 	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
 		Blob b = new Blob("./tester/something.txt");
 		b.getSha1();
-		b.createFile();
 	}
 }
