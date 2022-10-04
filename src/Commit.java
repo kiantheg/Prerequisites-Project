@@ -18,20 +18,33 @@ public class Commit {
 	private String author;
 	private String date;
 	public String treePointer;
-	private Commit parentPointer;
+	private String parentPointer;
 	private String otherPointer = null;
 	private File commitFile;
 	String sha1;
 	
-	public Commit(String s, String a, Commit parent) throws IOException, NoSuchAlgorithmException {
+	public Commit(String s, String a) throws IOException, NoSuchAlgorithmException {
 		summary = s;
 		author = a;
-		parentPointer = parent;
+		File HEAD = new File ("tester/HEAD");
+		if(HEAD.exists()) {
+			Scanner scan = new Scanner(new File("tester/HEAD"));
+			parentPointer = scan.nextLine();
+		}
+		else {
+			parentPointer=null;
+		}
+		System.out.println(parentPointer);
 		date = getDate();
 		treePointer = createTree().sha1;
 		sha1 = generateSha1();
 		commitFile = new File("tester/objects/" + sha1);
 		writeFile();
+		HEAD = new File("tester/HEAD");
+		HEAD.delete();
+		PrintWriter printer = new PrintWriter("tester/HEAD");
+		printer.println(sha1);
+		printer.close();
 	}
 	
 	private Tree createTree() throws IOException, NoSuchAlgorithmException {
@@ -40,12 +53,16 @@ public class Commit {
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
 			if(line.contains("*deleted*")) {
-				traverse(parentPointer.treePointer, line.substring(10));
+				Scanner scanny = new Scanner("tester/objects/"+parentPointer);
+				String parentTreePointer = scanny.nextLine();
+				traverse(parentTreePointer, line.substring(10));
 			}
 			else if (line.contains("*edited*")) {
 				Blob newBlob = new Blob("tester/"+line.substring(9));
 				content.add("blob : " + newBlob.getSha1() + line.substring(9));
-				traverse(parentPointer.treePointer, line.substring(9));			
+				Scanner scanny = new Scanner("tester/objects/"+parentPointer);
+				String parentTreePointer = scanny.nextLine();
+				traverse(parentTreePointer, line.substring(9));			
 			}
 			else {
 				content.add("blob : " + line.substring(line.indexOf(':')+1) + " " + line.substring(0, line.indexOf(':')-1));
@@ -65,25 +82,27 @@ public class Commit {
 		while(scan.hasNext()) {
 			String line = scan.next();
 			if(line.contains(fileName)) {
-				return;
+				
 			}
 		}
 	}
 
 	private String getParentTree() throws FileNotFoundException {
 		String content = "";
-		content = "tree : " + parentPointer.treePointer;
+		Scanner scanny = new Scanner("tester/objects/"+parentPointer);
+		String parentTreePointer = scanny.nextLine();
+		content = "tree : " + parentTreePointer;
 		return content;
 	}
 	
 	public String generateSha1() throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		String str = "";
 		str+="tester/objects/"+treePointer+"\n";
-		if(parentPointer==null) {
+		if(parentPointer==null||parentPointer=="") {
 			str+="\n";
 		}
 		else {
-			str+="tester/objects/"+parentPointer.generateSha1()+"\n";
+			str+="tester/objects/"+parentPointer+"\n";
 		}
 		if(otherPointer==null) {
 			str+="\n";
@@ -112,11 +131,11 @@ public class Commit {
 		PrintWriter printer = new PrintWriter(commitFile);
 		String str = "";
 		str+="tester/objects/"+treePointer+"\n";
-		if(parentPointer==null) {
+		if(parentPointer==null||parentPointer=="") {
 			str+="\n";
 		}
 		else {
-			str+="tester/objects/"+parentPointer.generateSha1()+"\n";
+			str+="tester/objects/"+parentPointer+"\n";
 		}
 		if(otherPointer==null) {
 			str+="\n";
@@ -136,19 +155,19 @@ public class Commit {
 		indy.initialize();
 		indy.addBlobs("something.txt");
 		indy.addBlobs("f.txt");
-		Commit comm = new Commit("first", "Kian", null);
+		Commit comm = new Commit("first", "Kian");
 		Index indy2 = new Index();
 		indy2.addBlobs("fi.txt");
 		indy2.addBlobs("fil.txt");
-		Commit comm2 = new Commit("second", "Kian", comm);
+		Commit comm2 = new Commit("second", "Kian");
 		Index indy3 = new Index();
 		indy3.addBlobs("foo.txt");
 		indy3.addBlobs("bar.txt");
-		Commit comm3 = new Commit("third", "Kian", comm2);
+		Commit comm3 = new Commit("third", "Kian");
 		Index indy4 = new Index();
 		indy4.addBlobs("foobar.txt");
 		indy4.addBlobs("sometxt.txt");
-		Commit comm4 = new Commit("fourth", "Kian", comm3);
+		Commit comm4 = new Commit("fourth", "Kian");
 		
 	}
 }
