@@ -34,12 +34,22 @@ public class Commit {
 		writeFile();
 	}
 	
-	private Tree createTree() throws IOException {
+	private Tree createTree() throws IOException, NoSuchAlgorithmException {
 		Scanner scan = new Scanner(new File("tester/index"));
 		ArrayList<String> content = new ArrayList<String>();
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
-			content.add("blob : " + line.substring(line.indexOf(':')+1) + " " + line.substring(0, line.indexOf(':')-1));
+			if(line.contains("*deleted*")) {
+				traverse(parentPointer.treePointer, line.substring(10));
+			}
+			else if (line.contains("*edited*")) {
+				Blob newBlob = new Blob("tester/"+line.substring(9));
+				content.add("blob : " + newBlob.getSha1() + line.substring(9));
+				traverse(parentPointer.treePointer, line.substring(9));			
+			}
+			else {
+				content.add("blob : " + line.substring(line.indexOf(':')+1) + " " + line.substring(0, line.indexOf(':')-1));
+			}
 		}
 		if(parentPointer!=null) {
 			content.add(getParentTree());
@@ -50,6 +60,16 @@ public class Commit {
 		return new Tree(content);
 	}
 	
+	private void traverse(String parentTree, String fileName) {
+		Scanner scan = new Scanner("tester/objects/" + treePointer);
+		while(scan.hasNext()) {
+			String line = scan.next();
+			if(line.contains(fileName)) {
+				return;
+			}
+		}
+	}
+
 	private String getParentTree() throws FileNotFoundException {
 		String content = "";
 		content = "tree : " + parentPointer.treePointer;
@@ -111,17 +131,24 @@ public class Commit {
 		printer.close();
 	}
 	
-	
-	
 	public static void main (String [] args) throws NoSuchAlgorithmException, IOException {
 		Index indy = new Index();
 		indy.initialize();
 		indy.addBlobs("something.txt");
 		indy.addBlobs("f.txt");
-		Commit comm = new Commit("test", "Kian", null);
+		Commit comm = new Commit("first", "Kian", null);
 		Index indy2 = new Index();
 		indy2.addBlobs("fi.txt");
 		indy2.addBlobs("fil.txt");
-		Commit comm2 = new Commit("woo", "Kian", comm);
+		Commit comm2 = new Commit("second", "Kian", comm);
+		Index indy3 = new Index();
+		indy3.addBlobs("foo.txt");
+		indy3.addBlobs("bar.txt");
+		Commit comm3 = new Commit("third", "Kian", comm2);
+		Index indy4 = new Index();
+		indy4.addBlobs("foobar.txt");
+		indy4.addBlobs("sometxt.txt");
+		Commit comm4 = new Commit("fourth", "Kian", comm3);
+		
 	}
 }

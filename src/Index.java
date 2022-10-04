@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,6 +36,16 @@ public class Index {
 		    fileWriter.println(name + " : " + pairs.get(name));
 		}
 	    fileWriter.close();
+	}
+	
+	public void delete(String fileName) throws FileNotFoundException {
+		PrintWriter printer = new PrintWriter(indexFile);
+		printer.println("*deleted* " + fileName);
+	}
+	
+	public void edit(String fileName) throws FileNotFoundException {
+		PrintWriter printer = new PrintWriter(indexFile);
+		printer.println("*edited* " + fileName);
 	}
 	
 	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
