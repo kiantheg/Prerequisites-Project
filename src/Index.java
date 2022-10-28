@@ -12,7 +12,7 @@ public class Index {
 		pairs = new HashMap<String, String>();
 	}
 	public void initialize() {
-		new File("/tester/objects").mkdirs();
+		new File("tester/objects").mkdirs();
 		indexFile = new File("/tester/index");
 	}
 	public void addBlobs(String fileName) throws NoSuchAlgorithmException, IOException {

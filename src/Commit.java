@@ -1,5 +1,7 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,7 +21,7 @@ public class Commit {
 	private String date;
 	public String treePointer;
 	private String parentPointer;
-	private String otherPointer = null;
+	private String childPointer;
 	private File commitFile;
 	String sha1;
 	
@@ -34,11 +36,29 @@ public class Commit {
 		else {
 			parentPointer=null;
 		}
-		System.out.println(parentPointer);
 		date = getDate();
 		treePointer = createTree().sha1;
 		sha1 = generateSha1();
 		commitFile = new File("tester/objects/" + sha1);
+		if (parentPointer!=null) {
+			ArrayList <String> content = new ArrayList <String> ();
+			BufferedReader br = new BufferedReader(new FileReader("tester/objects/"+parentPointer));
+			for (int k=0; k<2; k++) {
+				content.add(br.readLine());
+			}
+			content.add("tester/objects/" + sha1);
+			br.readLine();
+			for (int k=0; k<3; k++) {
+				content.add(br.readLine());
+			}
+			System.out.println(content);
+			PrintWriter pw = new PrintWriter("tester/objects/"+parentPointer);
+			for (String line: content) {
+				System.out.println("running");
+				pw.println(line);
+			}
+			pw.close();
+		}
 		writeFile();
 		HEAD = new File("tester/HEAD");
 		HEAD.delete();
@@ -87,32 +107,25 @@ public class Commit {
 		}
 	}
 
-	private String getParentTree() throws FileNotFoundException {
+	private String getParentTree() throws IOException {
 		String content = "";
-		Scanner scanny = new Scanner("tester/objects/"+parentPointer);
-		String parentTreePointer = scanny.nextLine();
-		content = "tree : " + parentTreePointer;
+		BufferedReader br = new BufferedReader(new FileReader("tester/objects/"+parentPointer));
+		String parentTreePointer = br.readLine();
+		content = "tree : " + parentTreePointer.substring(15);
 		return content;
 	}
 	
 	public String generateSha1() throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		String str = "";
-		str+="tester/objects/"+treePointer+"\n";
+		str+=summary+"\n";
+		str+=date+"\n";
+		str+=author+"\n";
 		if(parentPointer==null||parentPointer=="") {
 			str+="\n";
 		}
 		else {
 			str+="tester/objects/"+parentPointer+"\n";
 		}
-		if(otherPointer==null) {
-			str+="\n";
-		}
-		else {
-			str+=otherPointer+"\n";
-		}
-		str+=author+"\n";
-		str+=date+"\n";
-		str+=summary+"\n";
 		MessageDigest digest = MessageDigest.getInstance("SHA-1");
 		digest.reset(); 
 		digest.update(str.getBytes("utf8"));
@@ -137,11 +150,11 @@ public class Commit {
 		else {
 			str+="tester/objects/"+parentPointer+"\n";
 		}
-		if(otherPointer==null) {
+		if(childPointer==null) {
 			str+="\n";
 		}
 		else {
-			str+=otherPointer+"\n";
+			str+=childPointer+"\n";
 		}
 		str+=author+"\n";
 		str+=date+"\n";
@@ -168,6 +181,5 @@ public class Commit {
 		indy4.addBlobs("foobar.txt");
 		indy4.addBlobs("sometxt.txt");
 		Commit comm4 = new Commit("fourth", "Kian");
-		
 	}
 }
