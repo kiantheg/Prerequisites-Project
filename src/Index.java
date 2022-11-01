@@ -18,11 +18,7 @@ public class Index {
 	public void addBlobs(String fileName) throws NoSuchAlgorithmException, IOException {
 		Blob newBlob = new Blob("./tester/" + fileName);
 		pairs.put(fileName, newBlob.getSha1());
-		PrintWriter fileWriter = new PrintWriter("tester/index");
-		for (String key: pairs.keySet()) {
-			fileWriter.println (key + " : " + pairs.get(key));
-		}
-		fileWriter.close();
+		printToFile();
 	}
 	
 	public void removeBlobs(String fileName) throws IOException {
@@ -31,23 +27,27 @@ public class Index {
 		myObj.delete();
 		indexFile.delete();
 		indexFile = new File("/tester/index");
-		PrintWriter fileWriter = new PrintWriter("tester/index");
-		for (String name : pairs.keySet()) {
-		    fileWriter.println(name + " : " + pairs.get(name));
-		}
-	    fileWriter.close();
+		printToFile();
 	}
 	
 	public void delete(String fileName) throws FileNotFoundException {
-		PrintWriter printer = new PrintWriter(indexFile);
-		printer.println("*deleted* " + fileName);
+		PrintWriter printer = new PrintWriter("tester/index");
+		pairs.put("*deleted*", fileName);
+		printToFile();
 	}
 	
-	public void edit(String fileName) throws FileNotFoundException {
-		PrintWriter printer = new PrintWriter(indexFile);
-		printer.println("*edited* " + fileName);
+	private void printToFile() throws FileNotFoundException {
+		PrintWriter printer = new PrintWriter("tester/index");
+		for (String key: pairs.keySet()) {
+			if(key.equals("*deleted*")) {
+				printer.println (key + " " + pairs.get(key));
+			}
+			else {
+				printer.println (key + " : " + pairs.get(key));
+			}
+		}
+		printer.close();
 	}
-	
 	public static void main(String [] args) throws NoSuchAlgorithmException, IOException {
 		Index i = new Index();
 		i.initialize();

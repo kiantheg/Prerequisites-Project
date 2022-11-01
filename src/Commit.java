@@ -51,13 +51,12 @@ public class Commit {
 			for (int k=0; k<3; k++) {
 				content.add(br.readLine());
 			}
-			System.out.println(content);
 			PrintWriter pw = new PrintWriter("tester/objects/"+parentPointer);
 			for (String line: content) {
-				System.out.println("running");
 				pw.println(line);
 			}
 			pw.close();
+			br.close();
 		}
 		writeFile();
 		HEAD = new File("tester/HEAD");
@@ -70,25 +69,19 @@ public class Commit {
 	private Tree createTree() throws IOException, NoSuchAlgorithmException {
 		Scanner scan = new Scanner(new File("tester/index"));
 		ArrayList<String> content = new ArrayList<String>();
+		boolean deleted = false;
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
 			if(line.contains("*deleted*")) {
-				Scanner scanny = new Scanner("tester/objects/"+parentPointer);
-				String parentTreePointer = scanny.nextLine();
-				traverse(parentTreePointer, line.substring(10));
-			}
-			else if (line.contains("*edited*")) {
-				Blob newBlob = new Blob("tester/"+line.substring(9));
-				content.add("blob : " + newBlob.getSha1() + line.substring(9));
-				Scanner scanny = new Scanner("tester/objects/"+parentPointer);
-				String parentTreePointer = scanny.nextLine();
-				traverse(parentTreePointer, line.substring(9));			
+				String parentT = getParentTree();
+				deleteFile(line.substring(10), parentT, content);
+				deleted = true;
 			}
 			else {
-				content.add("blob : " + line.substring(line.indexOf(':')+1) + " " + line.substring(0, line.indexOf(':')-1));
+				content.add("blob :" + line.substring(line.indexOf(':')+1) + " " + line.substring(0, line.indexOf(':')-1));
 			}
 		}
-		if(parentPointer!=null) {
+		if(!deleted && parentPointer!=null) {
 			content.add(getParentTree());
 		}
 		File indexFile = new File ("tester/index");
@@ -97,13 +90,32 @@ public class Commit {
 		return new Tree(content);
 	}
 	
-	private void traverse(String parentTree, String fileName) {
-		Scanner scan = new Scanner("tester/objects/" + treePointer);
+	private boolean deleteFile(String fileName, String tree, ArrayList<String> content) throws FileNotFoundException {
+		File treeFile = new File("tester/objects/"+tree.substring(7));
+		Scanner scan = new Scanner(treeFile);
 		while(scan.hasNext()) {
-			String line = scan.next();
-			if(line.contains(fileName)) {
-				
+			String line = scan.nextLine();
+			if(line.contains("blob") && !line.contains(fileName)) {
+				content.add(line);
 			}
+			if(line.contains(fileName)) {
+				addRest(tree, content);
+				content.remove(line);
+				return true;
+			}
+			if (line.contains("tree")) {
+				deleteFile(fileName, line, content);
+			}
+		}
+		scan.close();
+		return false;
+	}
+	
+	private void addRest(String tree, ArrayList<String> content) throws FileNotFoundException {
+		Scanner scan = new Scanner(new File("tester/objects/" + tree.substring(7)));
+		while(scan.hasNext()) {
+			String line = scan.nextLine();
+			content.add(line);
 		}
 	}
 
