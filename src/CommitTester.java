@@ -34,10 +34,10 @@ class CommitTester {
 		Commit comm5 = new Commit("fifth", "Kian");
 		Index indy6 = new Index();
 		indy6.delete("foo.txt");
+		indy6.delete("fi.txt");
+		indy6.delete("sometxt.txt");
+		indy6.delete("fil.txt");
 		indy6.addBlobs("cool.txt");
 		Commit comm6 = new Commit ("sixth", "Kian");
-		Index indy7 = new Index();
-		indy7.delete("fi.txt");
-		Commit comm7 = new Commit ("seventh", "Kian");
 	}
 }

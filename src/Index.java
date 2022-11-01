@@ -31,16 +31,15 @@ public class Index {
 	}
 	
 	public void delete(String fileName) throws FileNotFoundException {
-		PrintWriter printer = new PrintWriter("tester/index");
-		pairs.put("*deleted*", fileName);
+		pairs.put(fileName, "*deleted*");
 		printToFile();
 	}
 	
 	private void printToFile() throws FileNotFoundException {
 		PrintWriter printer = new PrintWriter("tester/index");
 		for (String key: pairs.keySet()) {
-			if(key.equals("*deleted*")) {
-				printer.println (key + " " + pairs.get(key));
+			if(pairs.get(key).equals("*deleted*")) {
+				printer.println (pairs.get(key) + " " + key);
 			}
 			else {
 				printer.println (key + " : " + pairs.get(key));

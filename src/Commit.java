@@ -69,12 +69,17 @@ public class Commit {
 	private Tree createTree() throws IOException, NoSuchAlgorithmException {
 		Scanner scan = new Scanner(new File("tester/index"));
 		ArrayList<String> content = new ArrayList<String>();
+		ArrayList<String> pastTrees = new ArrayList<String>();
+		ArrayList<String> deletedFiles = new ArrayList<String>();
 		boolean deleted = false;
+		int counter = 0;
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
 			if(line.contains("*deleted*")) {
 				String parentT = getParentTree();
-				deleteFile(line.substring(10), parentT, content);
+				deletedFiles.add(line.substring(10));
+				deleteFile(line.substring(10), parentT, content, counter, pastTrees, deletedFiles);
+				counter++;
 				deleted = true;
 			}
 			else {
@@ -90,32 +95,47 @@ public class Commit {
 		return new Tree(content);
 	}
 	
-	private boolean deleteFile(String fileName, String tree, ArrayList<String> content) throws FileNotFoundException {
+	private boolean deleteFile(String fileName, String tree, ArrayList<String> content, int counter, ArrayList<String> pastTrees, ArrayList<String> deletedFiles) throws FileNotFoundException {
 		File treeFile = new File("tester/objects/"+tree.substring(7));
 		Scanner scan = new Scanner(treeFile);
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
 			if(line.contains("blob") && !line.contains(fileName)) {
-				content.add(line);
+				if (counter==0) {
+					content.add(line);
+				}
 			}
 			if(line.contains(fileName)) {
-				addRest(tree, content);
+				addRest(tree, content, pastTrees, deletedFiles);
 				content.remove(line);
 				return true;
 			}
 			if (line.contains("tree")) {
-				deleteFile(fileName, line, content);
+				if(counter>0 && content.contains(line)) {
+					content.remove(line);
+				}
+				if(!pastTrees.contains(line)) {
+					pastTrees.add(line);
+				}
+				deleteFile(fileName, line, content, counter, pastTrees, deletedFiles);
 			}
 		}
 		scan.close();
 		return false;
 	}
 	
-	private void addRest(String tree, ArrayList<String> content) throws FileNotFoundException {
+	private void addRest(String tree, ArrayList<String> content, ArrayList<String> pastTrees, ArrayList<String> deletedFiles) throws FileNotFoundException {
 		Scanner scan = new Scanner(new File("tester/objects/" + tree.substring(7)));
 		while(scan.hasNext()) {
 			String line = scan.nextLine();
-			content.add(line);
+			if(!content.contains(line)&&!pastTrees.contains(line)) {
+				content.add(line);
+			}
+			for(String file: deletedFiles) {
+				if(line.contains(file)) {
+					content.remove(line);
+				}
+			}
 		}
 	}
 
